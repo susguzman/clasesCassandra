@@ -1,0 +1,22 @@
+Python 2.7.12 para DSE 5.0
+03/08/2016
+
+1. Prerequisitos
+	$ yum install zlib, zlib-devel, openssl, openssl-devel -y
+	
+2. Descomprimir
+	$ tar -xf /usr/src/Python-2.7.12.tar.xz	
+
+3. Configurar y compliar
+	$ cd /usr/src/Python-2.7.12
+	$ ./configure
+	$ make
+	
+4. Descomentar modulo zlib
+	Editar el archivo y descomentar la linea
+	zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz
+	
+	$ vi Modules/Setup
+	
+5. Compilar e instalar
+	$ make altinstall ##Con la opcion altinstall no se sobreescribe la version actual de python instalada

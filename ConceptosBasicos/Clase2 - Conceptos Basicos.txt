@@ -4,14 +4,6 @@ Clase 2
 Por:
 	Jesus Guzman
 	jguzman@datum.com.gt
-	
-Data Model: Partitions
-
-	- Las particiones son un ordenamiento del esquema en disco y nos permiten obtener ciertos grupos de datos y ordenarlos
-	- El partitioner job toma la partition key y crea un token
-	- Las particiones se definen en el esquema por medio de la primary key
-	- Llaves primarias (Partition key, and compose key (clustering colummn))
-	- La forma en que se parte la informacion dentro del cluster.
 
 Clustering columns
 
