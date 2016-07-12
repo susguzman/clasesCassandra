@@ -1,0 +1,80 @@
+Clase 2
+12/07/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+	
+Data Model: Partitions
+
+	- Las particiones son un ordenamiento del esquema en disco y nos permiten obtener ciertos grupos de datos y ordenarlos
+	- El partitioner job toma la partition key y crea un token
+	- Las particiones se definen en el esquema por medio de la primary key
+	- Llaves primarias (Partition key, and compose key (clustering colummn))
+	- La forma en que se parte la informacion dentro del cluster.
+
+Clustering columns
+
+	- Son parte de la llave primaria
+	- Crean orden para guardar los datos
+	- Ayudan a que la llave primaria sea unica.
+	
+	Consultas
+		- Simpre es neceario colocar la particion key
+		- Son definidas luego de la llave primaria
+		- Puden ejecutarse consultas de igualdad (=) o rango de rango.
+		- La data esta ordenada en disco por lo que las busquedas son binarias
+
+Drivers
+
+	- Para conectarnos a cassandra. 
+	- La sintaxis es muy parecida en todos los lenguajes.
+	- Nos nectamos a cassandra lo hacemos a nivel de cluster nunca a nivel nodo. 
+	- Cuando nos conectamos obtenemos una session hacia el cluster que sigue todos los pasos de el. 
+	- El driver es capaz de saber que nodos se agregan o se remueven no hay que preocuparse por nada mas.
+
+Node
+
+	- Un nodo tiene recursos propios (HDD, RAM)
+	- Es donde se ejecuta cassandra sobre la maquina virtual de java.
+	- Es donde se guarda toda la informacion utilizando por medio de una tabla hash y particiones.
+	- Tipicamente se tiene 3000 - 5000 transacciones por segundos por nodo.
+	- Es recomendado de 1TB a 3TB por nodo
+	
+	Nodotool:
+		- Una herramienta para manejar cada nodo y es propia de cassandra
+		- Muestra informacion acerca del cluster. 
+		- La informacion que muestra es como ese nodo ve al cluster.
+
+Ring (Cluster)
+
+	- Cassandra no tiene punto de falla.
+	- Como guarda la data? A cada nodo se le es asignado un rango de tokens por lo que cada nodo en el cluster sabe que nodo tiene la informacion.
+	- Un cluster puede guardar de +2-1^63 a -2^63 rango de valores. Usando el particionador Murmur3Partitioner.
+	- Cuando se agrega un nodo al cluster este primero debe de conocer la distrubucion de los nodos para luego recalcular el rango de tokens. Y se pude hacer completamente online
+	- No es comendado usar SAN o NAS.
+	- El crecimiento es horizontal es mejor que el vertical.
+	- Permite crecer segun la situacion. Si hay dias de carga lo podemos mitigar facilmente. 
+
+Peer to Peer
+
+	- La arquitectura cliente servidor tiene problemas
+	- Que pasa cuando no hay comunicacion con el servidor ??
+	- La comunicacion entre nodos es peer to peer. 
+	- No hay nodo maestro todos se comunican entre todos.
+
+Repositorio GitHub
+	- https://github.com/susguzman/clasesCassandra.git
+	
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
+	- Videos Youtube https://www.youtube.com/playlist?list=PLFaVAzuG388sISXhp9znqp8RMVTcmT3wE
+	
+Tarea
+	- Ver videos del curso DS201
+	- Crear cuenta en Datastax academy
+	- Instalacion de DSE 5.0 en Oracle Linux 6.8 utilizando el repositorio de yum de Datastax
+	- Consultar la documentacion oficial para ayuda
+	- Fecha de entraga 13/07/2016
+	

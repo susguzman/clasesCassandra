@@ -1,0 +1,115 @@
+Clase 1
+11/07/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+
+Introduccion:
+	- Oracle vrs Cassandra
+	- Big data
+	- Teorema de las 3V (Velecidad, Varierdad y Volumen)
+	- Cassandra creado para resolver solucionar los problemas del siglo 21
+	- Oracle es un RDBMS que se que se va adaptando
+	- Siempre es mas facil hacer algo para un proposito especifico que ir adaptandolo
+
+Objetivos del curso:
+	- Aprender forma rapida los conceptos de cassandra utilizando como base el curso DS201 de dataxstax.
+	- Instalacion de cassandra 
+	- Comprender la arquitectura de cassandra.
+	- Conceptos basicos de modela de datos en cassandra
+	- Creacion del primer cluster
+	- Creacion de keyspaces, tablas
+
+Productos:
+	Cassandra:
+		- Un sistema distribuido
+		- No existe un unico punto de falla
+		- Escalabilidad lineal y horizontal.
+		- Replicacion automatica y configurable
+		- Hardware comodo utilizado.
+	CQL (Cassandra Query Languaje):
+		- Es un lenguaje para comunicarnos con cassandra.
+		- Muy parecido a SQL pero con diferencias marcadas, como no poder utilizar joins, debido al propio funcionamiento de cassandra.
+		- No existen relaciones.
+		- El modelado de datos se hace a partir de querys.
+		- CQLSH es una shell, propia de cassandra, que permite ejecutar sentencias CQL.
+	
+	DSE 5.0 (Datastax Enterprise)
+		- Lanzado el 28/06/2016
+		- Usa Cassandra 3.0 (Ultima version 3.0.6)
+		- CQL 3.3 
+		- Agrega paquetes adicionales para busqueda, analisis e integracion de datos.
+		- Integracion con Spark y Hadoop.
+		- Drivers para muchos lenguajes como Java, C#, C/C++.
+
+	OpsCenter 6.0
+		- Monitoreo de estados cluster de DSE
+		- Administracion del cluster
+		- Automatizacion de tareas
+		- Solo permite monitorear nodos DSE
+		
+		
+Clase
+	- Instalacion de cassandra
+		- Verificar funcionamiento $ nodetool status
+	
+	- Killr Video: Es un sitio el cual sera 
+	
+	- CQL
+		- KeySpaces: 
+			- Es un contenedor de tablas
+			- Similiar a un esquema en una base de datos relacional
+			- El objetivo principal de guardar la informacionde replicacion.
+		- Tablas: 
+			- Objetivo de guardar informacion
+			- Es un conjunto de columnas.
+			- No hay relaciones
+			- Todos deben de llevar una llave primaria
+		- Principales tipos de datos
+			- Int: Un entero de 32bits con signo 
+			- Text: No es necesario indicar el tamaño del string.
+			- UUID: (Universally unique indentifier)
+				- Es un numero unico de 128 bits.
+				- No es posible tener una secuencia en sistemas distribuidos
+			- TimeUUID
+				- La diferencia es que toma los primeros 64 bits para Timestamp y los otros 64 para UUID
+				- Cuando Timestamp iguales y es neceario asegurarse que son unicos
+		- Select, Insert
+		- Copy para importar y exportar datos delimitados
+		
+	- Particionamiento
+		- Las particiones son un ordenamiento del esquema en disco y nos permiten obtener ciertos grupos de datos y ordenarlos
+		- El partitioner job toma la partition key y crea un token
+		- Las particiones se definen en el esquema por medio de la primary key
+		- Llaves primarias (Partition key, and compose key (clustering colummn))
+		- La forma en que se parte la informacion dentro del cluster.
+		
+		- El particionador indica como la data es distribuida a travez del cluster
+		- Es basicamente la representacion de la primary key utilizando un valor hash.
+		- Tipos de particionadores:
+			- Murmur3Partitioner (default): 
+				Distribuye la data a travez del cluster basado en MurmurHash hash values. 
+				De 3 a 5 veces mas rapido que RandomPartitioner. 
+				Es posible un rango de valores hash -2^63 to +2^63-1.
+				Soporta el uso de vnodes
+			- RandomPartitioner: 
+				Distribuye la data a travez del cluster basado en MD5 hash values.
+				Es posible un rango de valores hast de 0 to 2127 -1
+				Soporta el uso de vnodes
+			- ByteOrderedPartitioner: 
+				keeps an ordered distribution of data lexically by key bytes
+				Usar este tipo de particionador no es recomendado 
+
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
+	- Videos Youtube https://www.youtube.com/playlist?list=PLFaVAzuG388sISXhp9znqp8RMVTcmT3wE
+	
+Tarea
+	- Ver videos del curso DS201
+	- Crear cuenta en Datastax academy
+	- Instalacion de DSE 5.0 en Oracle Linux 6.8 utilizando el repositorio de yum de Datastax
+	- Consultar la documentacion oficial para ayuda
+	- Fecha de entraga 13/07/2016
+	
