@@ -1,0 +1,108 @@
+Clase 3
+13/07/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+
+Vnodes
+
+	- No se necesario calcular la asignacion de tokens para cada nodo	
+	- Cuando se agrega un nodo este asume la resposabilidad de una porcion de la informacion.
+	- La comunicacion entre nodos es peer to peer. No hay nodo lider todos se comunican entre todos.
+
+Gossip
+
+	- Es un protocolo de comunicacion peer-to-peer por el cual los nodos transmiten informacion de ellos mismos e informacion de los nodos que conocen.
+	- El proceso de Gossip se inicia cada segundo en cada nodo intercambiando mensajes con un maximo de 3 nodos del cluster.
+	- El nodo intercambia informacion se si mismo y de los nodos que conoce, de esta manera todos los nodos del custer aprenden del estado de los nodos.
+	- Los mensajes Gossip tienen asociado un numero de version de esta manera la informacion vieja es sobre escrita.
+	- Se transmite informacion como el endpoint, el estado de la aplicacion y el estado de salud del nodo.
+	- Cuando un nodo nuevo se une este usa los nodos seed para iniciciar, bootstrapping, el proceso de Gossip.
+	- Cuando ocurre un reinicio de un nodo de un  cluster este recurda los nodos del ultimo Gossip por lo que no es neceario realizar bootstrapping.
+	- Es recomendado tener al menos un nodo seed por data center y un maximo de 3 para tolerancia de fallos.
+	- No es recomendado volver a todos los nodos seed, esto saturaria la red.
+
+Snitch
+
+	- Define grupos de maquinas organizandolas por data centers y racks (Topologia) que define la estrategia de replica.
+	- Crea la topologia de cassandra
+	- Un snitch se define cuando se crea un cluster
+	- Configurado en el archivo cassandra.yaml
+	- Todos los nodos en el cluster deben de usar el mismo snitch.
+	- Cambiar el snitch deben de reiniciar todos los nodos
+	
+	Grupos de snitch
+		- Regulares
+		- Cloud Based
+	
+	Tipos de snitch regulares:
+		- SimpleSnitch: Default. Usado solo para sigle-data center. No reconoce informacion de data centers o racks. Es necesario definir la replicacion en el keyspace. Todos los nodos estan en el mismo data center y rack.
+		- PropertyFileSnitch: Define data centers y racks en el archivo etc/dse/cassandra/cassandra-rackdc.properties. 
+			Todos los nodos deben de estar agregados al archivo y el archivo debe de ser el mismo para todos los nodos. Agregar un nodo es complicado debido a que es necesario modificar este archivo. 
+		- RackInferringSnitch: Utiliza la IP para definir los data centers y racks.
+		- GossipingPropertyFileSnitch es el recomendado para ambientes de produccion. Define data centers y racks usando Gossip para propagar la informacion a otros nodos. Usa el archivo cassandra-rackdc.properties.
+			
+Replication
+
+	- La estrategia de replica determina donde las copias van a ser guardadas.
+	- El factor de replicacion es el numero total de replicas atravez del cluster. Un factor de replicacion 2 nos asegura que hay dos copias de la fila en el cluster.
+	- El factor de replicacion deberia no exceder el numero de nodos en el cluster.
+	
+	Tipos de estrategias de replicacion
+		- SimpleStrategy: 
+			Usado solo para un data center y un rack. 
+			Coloca la primera replica en el nodo determino por el particionador y las demas las coloca en el nodo siguiente siguiendo las agujas del reloj.
+		- NetworkTopologyStrategy: 
+			Recomendado para la moyoria ya que es facil expandir a multiples data centers.
+			Especifica la cantidad de replicas en cada data center.
+			Coloca las replicas en el mismo data center pero intenta colocarlas en distinto rack (espacio fisico), esto a debido que cuando un nodo del rack falla casi siempre falla el data center.
+			
+			Dos replicas en el data center permiten: Tolerancia a la falla de un nodo con factor de replicacion ONE.
+			Tres replicas en el data center permiten: Ya sea tolerancia a la falla de un nodo con factor de replicacion LOCAL_QUORUM  (fuerte) o ya sea la tolerancia de la falla de dos nodos con un nivel de consistencia ONE.
+
+Consistency
+
+	- Cassandra no usa ACID con mecanismos de bloqueo o rollback.
+	- Cassandra usa AID con consistencia eventualo/tuneable. La atomicidad y aislamiento es negociable para disponiblidad y escritura. La durabilidad es completa
+	- Cassandra soporta alta disponibilidad y tolerancia a particionamiento.
+	
+	Atomicity
+		- La atomicidad es tratada a nivel de particion.
+		- Un insert o update es tratado como una sola operacion de escritura. Un delete tambien es atomico.
+		- Si existen inconsistencias entre las replicas cassandra toma el registo mas reciente en base al timestamp.
+		- Si se cumple el nivel de consistencia determinado la operacion es ejecutada.
+		
+	Consistency
+		Tipos de consistencia:
+			- Tunable consistency: La disponiblidad y consistencia pueden ser tuneadas.
+			- Linearizable consistency: 
+			
+			Nivel de consistencia:
+				ONE: Al menos un nodo de las replicas debe de contestar.
+				TWO: Al menos dos nodos de las replicas debe de contestar.
+				THREE: Al menos tres nodos de las replicas debe de contestar.
+				QUORUM: El 50% + 1 de las replicas deben de constestar, tomando en cuenta todos los data centers
+				LOCAL_ONE: Al menos un nodo del mismo data center debe contestar.
+				LOCAL_QUORUM: El 50% + 1 de las replicas deben de constestar, tomando en cuenta solo un data center.
+				EACH_QUORUM: El quorum de cada data center. Aplica solo a escrituras.
+				ALL: Todas las replicas deben de contestar.
+				ANY: La data puede ser guardada aun asi ningun replica este viva utilizando Hinted Handoff.
+			
+	Islamiento:
+		- Existe aislamiento a nivel de fila completa. La escritura no es visible para otros usuarios hasta que la escritura este completa.
+		
+	Durabilidad:
+		- Todas las escrituras en cassandra son durables
+		- Todas las escrituras son escritas en la memtable y el commit log antes de mandar un mensaje satisfactorio.
+		
+			Dos replicas en el data center permiten: Tolerancia a la falla de un nodo con factor de replicacion ONE.
+			Tres replicas en el data center permiten: Ya sea tolerancia a la falla de un nodo con factor de replicacion LOCAL_QUORUM  (fuerte) o ya sea la tolerancia de la falla de dos nodos con un nivel de consistencia ONE.
+	
+Repositorio GitHub
+	- https://github.com/susguzman/clasesCassandra.git
+	
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
+	- Videos Youtube https://www.youtube.com/playlist?list=PLFaVAzuG388sISXhp9znqp8RMVTcmT3wE

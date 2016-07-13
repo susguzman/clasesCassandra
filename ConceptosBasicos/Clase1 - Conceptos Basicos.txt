@@ -7,8 +7,8 @@ Por:
 
 Introduccion:
 	- Oracle vrs Cassandra
-	- Big data
-	- Teorema de las 3V (Velecidad, Varierdad y Volumen)
+	- Big data las 3V (Velecidad, Varierdad y Volumen)
+	- Teorema de CAP (Disponibilidad, consistencia, tolerancia a particionamiento)
 	- Cassandra creado para resolver solucionar los problemas del siglo 21
 	- Oracle es un RDBMS que se que se va adaptando
 	- Siempre es mas facil hacer algo para un proposito especifico que ir adaptandolo
