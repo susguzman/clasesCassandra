@@ -1,0 +1,70 @@
+Clase 4
+14/07/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+
+Hinted Handoff
+
+	- Es una caracteristica que optimiza el proceso de consistencia de datos cuando uno de los nodos de replica no esta disponible. 
+	- Hace que el nivel de consistencia especificado se cumpla aun cuando los nodos replica esten caidos.
+	- Basicamente permite al nodo cordinador tomar el rol de uno de los nodos replica caidos.
+	- La data es guardada en system.hints como Hint en el nodo cordinador para luego ser enviada al nodo replica cuando este vuelva a estar en linea
+	- Por defecto los hints son guardados 3 horas despues de la caida del nodo replica, luego de ese tiempo si el nodo no revive este es marcado como muerto permanentemente. Esta tiempo puede ser cambiado segun el parametro max_hint_window_in_ms.
+	- El nivel de consistencia ANY significa que con guardar un hist es suficiente
+	- Cuando un nodo descubre que el nodo replica vuelve a estar online este manda los hints. 
+	- Esta propiedad por defecto viene habilitada. 
+	
+Read Repair: repair during read path
+
+	- Es una caracteristica que permite volver consistente la data por medio de una lectura de datos normal. 
+	- Es un sistema Anti-Entropy, lo que quiere decir que el sistema se recupera automaticamente.
+	- Cassandra tambien ejecuta un read repair aleatoriamente, independiende de cualquier lectura. Es posible configurar que tan amenudo pasa por medio del parametro a nivel de tabla read_repair_chance.
+	- Un nivel de consistencia ALL la comparacion de version de data es ejecutada antes de responderle al cliente mientras que que en otro nivel de consistencia la comparacion se realiza despues de responderle al cliente.
+	- Read repair no puede ser usado con la estrategia de compactacion DateTieredCompactionStrategy.
+	
+	Funcionamiento:
+		1. Cuando una solicitud de datos es realizada el cordinador le pide toda la data a un nodo replica.
+		2. El cordinador obtiene un resultado y a los demas nodos replica les pide la data ya digerida. Un dato digerido es un valor hash que deberia ser mas pequeño que el valor en si.
+		3. Si existe algun tipo de desincronizacion, debido a que el hast no es el mismo, el cordinador solicita la data y timestamp de los nodos. Si no existe ningun tipo de desincronizacion el valor es enviado al usuario y el proceso termina.
+		4. Se realiza una comparacion de timestamp con lo cual el dato mas actualizado es usado y enviado a todas las replicas resolviendo los problemas de inconsistencia.
+		
+	Node Repair
+
+		- Es una tarea manual que debe de ser ejecutada luego que un nodo tiene una desincronizacion de mas de 3 horas. Esto xq ya no hay hints para recuperarse.
+		- Esta deberia de ser una operacion que deberia de correrse al menos cada diez dias Para tener la data consistente y eliminar la necesitad de read repair.
+		- Se asegura de que todas las replicas son consistentes.
+
+Write Path
+
+	Proceso de escritura: 
+		- Escribir en commit log
+		- Escribir data en memtable. Importante para ordernad la data. Se guarda hasta que llegue a su limite o se ejecute un flush manual
+		- Flushing data de memtable. Ocurre cuando se llena el memtable. La data es ordenada antes de escribirla a disco.
+		- Guardar data en disco SStables. La data en comit log es elimada luego que un flush orcurre. Los SStables son inalterables por lo que no pueden ser modificados. Cada SStable representa una tabla
+		- Compactacion. Proceso por el cual varios SStables, pertenecientes a la misma tablo, son juntados con el objetivo de solo crear un solo SStable.
+		- Es recomendado colocar los archivos commitlog y SStables en discos distintos
+	
+Read Path
+
+	- Bloom filter. Indica si el archivo posiblemente tiene la particion o si abosolutamente no la tiene. Esto hace que no se escaneen todos los archivos a la hora de hacer una lectura.
+	- Parition key cache. Indica del offset de una particion exacta pero en memoria y de tamaño configurable. Solo se encuentran las particiones mas accedidas. Si una particion es encontrada en esta parte ya no son necesarias las siguientes.
+	- Partition summary index. Indica el offset pero por rango de particiones, luego que es ubicado el rango procede a ubicarse la ubicacion por medio del partition index. Se encuentra en memoria.
+	- Partition Index. Indica el offset donde inicia una partion. Se encuentra en disco.
+	
+Compaction
+
+	- Es un proceso por el cual es dos o mas SStables son fucionados. 
+	- Es necesario xq los SStables son inalterables por lo tanto cuando ocurre un insert, update o delete un SStable es creado. 
+	- Un delete es llamado Tombstones.
+	- El proceso de compactacion lee ordenadamente cada registo de los SStables comparando su partion y timestamp para luego colocarlos de forma ordenada en un nuevo SStable.
+	- Luego del proceso de compactacion los SStables son eliminados despues de completar todas las opertaciones de lectura pendientes.
+	
+Repositorio GitHub
+	- https://github.com/susguzman/clasesCassandra.git
+	
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
+	- Videos Youtube https://www.youtube.com/playlist?list=PLFaVAzuG388sISXhp9znqp8RMVTcmT3wE
