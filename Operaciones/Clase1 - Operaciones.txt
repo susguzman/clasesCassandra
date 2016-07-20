@@ -1,0 +1,97 @@
+Clase 1
+18/07/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+	
+Bootstrapping a Node into a Cluster
+
+	- Bootstrapping es el proceso de inicio de nodo en el cual se une al cluster recualculando el rango de particiones y otrogandole la data que corresponde.
+	- Se debe considerar agregar un nodo cuando:
+		- Hay Problemas de capacidad
+		- Hay Problemas de trafico (read/write)
+		- Operaciones Headroom. Es necesario hacer operaciones como reparaciones, compactaciones o cualquier otra operaciones pesada.
+	- Cuando no se usan vnodes agregar un nodo requiere hacer un recalculo de partition key entre los nodos.
+	- Se debe de esperar 2 minutos antes de agregar otro nodo. Esto para que no exista problemas con el calculo de los rangos.
+	- Parametros obligatorios para agregar un nodo
+		- cluster_name 
+		- rpc_address
+		- listen_address
+		- seed (Lista de servidores, que se utiliza para el Bootstrapping)
+	- Proceso de Bootstrapping
+		- Conocer los nodos del cluster por medio de servers seed.
+		- El nodo calcula los nuevos rangos y notificar al cluster del los cambios.
+		- Calcular los nodos que actualmente son propiedad del nuevo rango para indicar que ya no son de su propiedad luego del Bootstrapping.
+		- Enviar la data correpondiente la nuevo nodo (En este proceso el nodo se encuentra en estado Joining)
+		- Agregar el nodo al server
+		- Esto tarda segun la cantidad de data a enviar
+	- Si el proceso de agregar un nodo falla considerar ejecutar: nodetool upgrade o nodetool update para rebootstrap la data
+	- Luego de agregar un nodo los demas nodos tienen data que no les sirve, es posible ejecutar nodetool cleanup para realizar una limpieza pero no es recomendado debido a que es un proceso pesado como el de compactacion. El nodo se limpiara automaticamente con cada compactacion.
+	
+Removing a Node 
+
+	- Cuando se va a remover un nodo puede ser:
+		- Para reducir la capacidad
+		- Porque el nodo ha muerto y no va regresar a estar online
+	- Remover un nodo vivo
+		- Proceso de decommission: En el cual se recalculan los rangos.
+		- Se envia la data a los demas nodos y el nodo entra en un estado de Leaving
+		- En este estado el nodo ya no es capas de recibir informacion.
+		- Al final del proceso el directorio de data no es removido. 
+		- El proceso de cassandra queda vivo en la JVM para este ya no se puede comunicar y necesita ser detenido manualmente.		
+		- Se usa $ nodetool decommission
+	- Remover un nodo no vivo (cuando no va regresar a estar online)
+		- Ejecutar la instruccion $ nodetool removenode <ip>, diciendole al cluster que el nodo no va ha regresar y que se calcule el rango de tokens.
+		- Se ejecutan procesos re-replicar la data con el objetivo de cumpliar con la estrategia de replicacion.
+		- Si removenode falla ejecutar $ nodetool assassinate <ip>.
+		- Assessinate es la ultima opcion para eliminar un nodo y se salta el proceso de re-replicar la data.
+	- Luego de remover un nodo deberia de ser ejecutado $ nodetool repair
+
+Replace a Downed Node
+	
+	- Si es un nodo normal (no seed). 
+		- Verificar estado down y la ip del nodo a remplazar. $nodetool status
+		- Iniciar el nuevo nodo con la siguiente opcion modificable en el archivo /etc/dse/cassandra/cassandra-env.sh:
+			JVM_OPTS="$JVM_OPTS -Dcassandra.replace_address=address_of_dead_node
+			Esto evita que los rangos se recalculen y el nuevo nodo toma los rangos del nodo muerto
+		- Eliminar el nodo muerto usando $nodetool removenode o $nodetool assassinate.
+		- Ejecutar $ nodetool cleanup en los nodos existentes.
+		
+	- Si es un nodo seed
+		- Agregar la nueva direcion del nuevo seed node en el archivo cassandra.yaml.
+		- Iniciar el nuevo seed node
+		- Ejecutar $nodetool repair para ejecutar un boostrap manual
+		- Eliminar el viejo seed node usando $ nodetool removenode
+		- Ejecutar $ nodetool cleanup en los nodos existentes.
+
+Run a Repair Operation
+
+	- Reparar es una operacion manual para contrarestar la entropia, desgaste, de un cluster y debe de ser ejecutada de manera preventiva
+	- La entropia llega por los nodos que se caen por mucho tiempo volviendo la data inconsistente.
+	- Se asegura de que todas las replicas tengan copias identicas y actualizadas de la particion dada asegurando la consistencia de los datos.
+	- Puede ser aplicado en un nodo o en todos y si es neceario en paralelo
+	- Repair debe de ser ejecutado siempre que un nodo regresa despude de mas 3 horas, tiempo default de los hints.
+	- El proceso consiste:
+		- Creear un arbol Merkle de la data por particion
+		- Las replicas comparan las diferencias entre sus arboles y envians sus diferencias a otros.
+		
+	- Incremental repair (Por default en Cassandra 2.2 y superior)
+		- Evita crear el arbol Merkle completamente.
+		- Son construidos a partir de SStables que no han sido reparados. Si los SStables no se pueden editar entonces los SStables no reparados son todos
+			los despues que se crearon luego del ultimo repair.
+		- El proceso es el mismo que un repair regular pero es menos costoso porque el arbol es mas pequeño.
+		
+	- Mejores practicas para repair:
+		- Ejecutar repair almenos una vez a la semana
+		- Ejecutar repair en el menor numero de nodos posible al mismo tiempo
+		- Planificar repair en horas de menos carga
+		- Ejecutar repair en una sola particion a la vez
+		
+Repositorio GitHub
+	- https://github.com/susguzman/clasesCassandra.git
+	
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
+	- Videos Youtube https://www.youtube.com/playlist?list=PLFaVAzuG388uK9jIPnUlXQrB3YeptwGaX

@@ -1,0 +1,37 @@
+27/06/2016
+Iniciar un cluster nuevo o Agregar un nodo a un cluster
+http://docs.datastax.com/en/cassandra/2.1/cassandra/initialize/initializeMultipleDS.html
+
+1. Detener firewall
+
+2. Detener cassandra, si estubiera iniciado.
+
+3. Eliminar archivos de datos de cassandra
+	$ rm -rf /var/lib/cassandra/*
+
+4. Modificar parametros en el archivo /etc/dse/cassandra/cassandra.yaml
+	Basicamente son los siguientes parametros
+	
+	auto_bootstrap: false ###Solo cuando es el nodo seed el que se va a iniciar
+	cluster_name: 'DTUCluster'
+	num_tokens: 256
+	seed_provider:
+	  - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+		parameters:
+			 - seeds:  "10.168.66.41"
+	listen_address: cass1
+	rpc_address: cass1
+	endpoint_snitch: GossipingPropertyFileSnitch
+	
+5. Indicar en que parte de la topologia del rack va estar el nodo modificando el archivo /etc/dse/cassandra/cassandra-rackdc.properties. Esto si se usa GossipingPropertyFileSnitch.
+
+6. Iniciar cassandra (Boosttraping)
+	$ service dse start
+	
+	## Si el nodo es seed es necesario ejecutar
+	$ nodetool repair # o $ nodetool rebuild		
+	
+7. Verificar log de cassandra por cualquier problema /var/log/cassandra/output.log
+
+8. Verificar que el nodo este corriendo perfectamente
+	$ nodetool status
