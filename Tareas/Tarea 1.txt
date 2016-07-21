@@ -1,0 +1,6 @@
+Tarea 1
+	- Ver videos del curso DS201
+	- Crear cuenta en Datastax academy
+	- Instalacion de DSE 5.0 en Oracle Linux 6.8 utilizando el repositorio de yum de Datastax
+	- Consultar la documentacion oficial para ayuda
+	- Fecha de entraga 13/07/2016

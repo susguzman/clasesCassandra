@@ -1,0 +1,18 @@
+Tarea 2
+Entrega: 21/07/2016
+
+Crear un cluster con los siguientes requerimientos:
+	- Un data center de 5 nodos
+	- Un rack de 3 nodos y un rack de 2 nodos
+	- Dos nodos seed por datacenter
+	- Nombre del data Center: DTUTEST#
+		En donde # es el numero de grupo
+	- Escoja el Snitch adecuado para este caso
+	- Numero de vnodes: 256
+
+Cada estudiante debe de ser encargado de dos instancias de cassandra haciendo un total de 10 instancias por lo que deberan de formarse dos grupos.
+	
+Adicionalmente:
+	- Investigar si existe alguna forma de saber en que nodos del data center esta gruardada nuestra data.
+	- Tener lista una instancia de cassandra para ser agregada al data center.
+	
