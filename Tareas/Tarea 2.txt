@@ -10,7 +10,7 @@ Crear un cluster con los siguientes requerimientos:
 	- Escoja el Snitch adecuado para este caso
 	- Numero de vnodes: 256
 
-Cada estudiante debe de ser encargado de dos instancias de cassandra haciendo un total de 10 instancias por lo que deberan de formarse dos grupos.
+Cada estudiante debe de ser encargado de dos instancias de cassandra haciendo un total de 10 instancias por lo que deberan de formarse dos grupos de estudiantes.
 	
 Adicionalmente:
 	- Investigar si existe alguna forma de saber en que nodos del data center esta gruardada nuestra data.
