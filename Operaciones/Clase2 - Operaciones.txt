@@ -1,0 +1,79 @@
+Clase 2
+27/07/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+	
+Dividing SSTables with sstablesplit
+	
+	- Es el proceso inverso a la compactacion.
+	- Mantener archivos muy grandes es problematico
+	- Se utiliza la herramienda $ sstablesplit
+	- El servicio de cassandra debe de estar DETENIDO.
+
+Creating Snapshots
+
+	- Cassandra no tiene un unico punto de falla pero cuando un error de programacion ocurre toda la data es afectada.
+	- No se hacen backup de toda la data como una base de datos tradicional.
+	- Cassandra es un sistem distribuido y cada nodo tiene una parte de la data.
+	- Los SStables son inalterables por lo que pueden ser utilizados para backup.
+	- Para restaurar un backup solo es necesario copiar los archivos del snapshot a la carpeta de datos. O utilizar sstableloader
+	- Utilizar la herramienda $ nodetool snapshot.
+	- Un snapshot esta siempre en el mismo disco, por lo que una falla de disco no es soportada.
+	- Para remover snapshots utilizar $ nodetool clearsnapshot. Si no se especifica nada todos los snapshots son borrados.
+	
+	- Un Snapshot:
+		- Representa el estado de los data files en un estado del tiempo.
+		- Se crea un hardlink del filesystem ubicada en data_directory/keyspace_name/table_name-UUID/snapshots/snapshot_name. Como es un hardlink es super rapido (Un hardlink solo es un enlace a la misma data fisica)
+		- Un snapshot puede ser restaurado solo cuando la tabla existe. Considerar crear backup de metada de objetos luego de snapshot.
+		- Antes de ejecutar un snapshot se ejecuta un flush-memory para escribir a SStables lo que hay en memoria.
+		- Puede ser a nivel de table, keyspace, multiples keyspaces o cluster.
+		- Deben de ser ejecutados en cada nodo (User parallel ssh).
+		
+	- Backups incrementales
+		- Es un mecanismo de cassandra en el caul consiste en crear un hardlink automaticamente cada vez que un flush-memory es realizado.
+		- Se guardan en la carpeta backup de cada tabla.
+		- No son borrados automaticamente.
+		- Por default estan deshabilidados. 
+				
+Implementing Multiple Data Centers
+
+	- Topologia:
+		- Node: Fisico o virtual host con una instancia de cassandra
+		- Rack: Una agrupacion logica de nodos fisicamente relacionados
+		- Data Center: Una agrupacion logica de racks.
+		- Cluster: 
+	- Un nodo puede pertenecer solo a un rack y un data center a la vez
+	- Un data center es configurado es una agrupacion de nodos para propositos de replica.
+	- El nivel de consistencia es puede ser configurado a nivel de data center
+	- Utilizar NetworkTopologyStrategy para replicacion entre racks y data centers
+	
+Best Practices for Cluster Sizing
+
+	- El tamaño del cluster depende:
+		- El modelo de datos y casos de uso
+			- Cual es el SLA
+		- El volumen de los datos (calculo por nodo)
+			- Tomar en cuenta el factor replicacion para la cantidad de informacion	
+		- Velocidad de respuesta (read/write)
+	- Siempre es necesario monitorear el estado del cluster
+	- Planificar aumentar el tamaño del cluster antes de encesitarlo
+				
+Using the cassandra stress Tool
+	
+	- Cassandra stress tool es una herramienta, desarrolada en java, que nos permite, comparaciones basicas de estres en un Cluster.
+	- Es posible indicarle un archivo de parametros, .yaml, en el cual se indican, con una sintaxis propia, como realizar las pruebas de estres.
+	- Es posible realizar pruebas estadisticas.
+	- La herramienta que se utiliza es $ cassandra-stress
+		
+Tarea 3
+	Revisar repositorio de github :D
+		
+Repositorio GitHub
+	- https://github.com/susguzman/clasesCassandra.git
+	
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
+	- Videos Youtube https://www.youtube.com/playlist?list=PLFaVAzuG388uK9jIPnUlXQrB3YeptwGaX

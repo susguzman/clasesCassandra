@@ -1,0 +1,50 @@
+Tarea 3
+Entrega: 28/07/2016
+
+********** Un poco de modelado de datos y nivel de consistencia
+
+1. Crear el keyspace killrvideo
+
+	El keyspace debe tener un factor de replicacion de 3 con estrategia SimpleStrategy.
+2. Crear una tabla videos con los siguientes campos
+
+	Column Name		Data Type
+	video_id		timeuuid
+	added_date		timestamp
+	description		text
+	title			text
+	user_id			uuid
+	
+3. Importar los datos desde el archivo 'videos.csv' hacia la tabla videos. Se deben de importar 430 videos.
+
+4. Con CQLSH modificar el nivel de consistencia de las peticiones y habilitar el seguimiento te las operaciones.
+
+5. Realizar peticiones a cassandra cambiando el nivel de consistencia con el objetivo de verificar los nodos que deben de responder para que una peticion sea catalogada como exitosa
+
+6. Habilitar el firewall en alguno de los nodos, simulando que el nodo esta caido, y realizar peticiones con un nivel de consistencia que no se pueda cumplir.
+
+7. Remover de nuestro cluster uno por medio de decommission (nodo vivo) y otro por medio de removenode (nodo muerto). Chequear el estado de de las operaciones utilizando $ nodetool netstats o $ nodetool removenode. Estas operaciones dejan a nuestro cluster con 3 nodos. Realizar las operaciones necesarias para que la data en nuestro cluster sea consistente.
+
+8. Verificar que nuestro cluster sea consistente ejecutando un select sobre la tabla video con un nivel de consistencia de all.
+
+9. Agregar los dos nodos que fueron removidos anteriormente. Mientras se esta agrando los nodos verificar con $ nodetool netstats como la data es trasferida entre los nodos para que todos tengan una porcion de la data. Luego de agregar los nodos asegurarse que la informacion que cada nodo manaje es solo la que el le corresponde.
+
+********** Modificar cluster
+Actualmente se tiene dos cluster con 5 nodos y 2 racks cada uno, haciendo un total de 10 instancias de cassandra.
+
+1. Eliminar el cluster DTUTEST2. Dejando 5 instancias de cassandra libres
+
+2. Unir los 5 nodos libres crear un datacenter llamado dc2 que contenga 2 racks, rc1 y rc2. Este nuevo datacenter unirlo al cluster ya existente DTUTEST1
+
+3. Modificar la estrategia de replicacion del keyspace killrvideo a NetworkTopologyStrategy con factor de raplicacion 2 en el datacenter1 y con factor de replicacion 3 en el datacenter2.
+
+4. Realizar las operaciones necesarias para que la data sea replicada segun la nueva estrategia de replicacion.
+
+5. Realizar peticiones a cassandra cambiando el nivel de consistencia con el objetivo de verificar los nodos que responden. Tomar en cuenta que ahora su cluster tiene varios datacenters por lo que existen otros niveles de consistencia que se pueden aplicar.
+
+6. Agregar otro datacenter de 4 nodos ........
+
+
+
+
+	

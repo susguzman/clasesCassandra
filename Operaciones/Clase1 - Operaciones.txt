@@ -60,6 +60,7 @@ Replace a Downed Node
 		
 	- Si es un nodo seed
 		- Agregar la nueva direcion del nuevo seed node en el archivo cassandra.yaml.
+		- Poner el parametro auto_bootstra : false
 		- Iniciar el nuevo seed node
 		- Ejecutar $nodetool repair para ejecutar un boostrap manual
 		- Eliminar el viejo seed node usando $ nodetool removenode
@@ -78,8 +79,7 @@ Run a Repair Operation
 		
 	- Incremental repair (Por default en Cassandra 2.2 y superior)
 		- Evita crear el arbol Merkle completamente.
-		- Son construidos a partir de SStables que no han sido reparados. Si los SStables no se pueden editar entonces los SStables no reparados son todos
-			los despues que se crearon luego del ultimo repair.
+		- Son construidos a partir de SStables que no han sido reparados. Si los SStables no se pueden editar entonces los SStables no reparados son todos los despues que se crearon luego del ultimo repair.
 		- El proceso es el mismo que un repair regular pero es menos costoso porque el arbol es mas pequeño.
 		
 	- Mejores practicas para repair:
