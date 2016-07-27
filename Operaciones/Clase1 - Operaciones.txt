@@ -42,7 +42,7 @@ Removing a Node
 		- El proceso de cassandra queda vivo en la JVM para este ya no se puede comunicar y necesita ser detenido manualmente.		
 		- Se usa $ nodetool decommission
 	- Remover un nodo no vivo (cuando no va regresar a estar online)
-		- Ejecutar la instruccion $ nodetool removenode <ip>, diciendole al cluster que el nodo no va ha regresar y que se calcule el rango de tokens.
+		- Ejecutar la instruccion $ nodetool removenode <HOST ID>, diciendole al cluster que el nodo no va ha regresar y que se calcule el rango de tokens.
 		- Se ejecutan procesos re-replicar la data con el objetivo de cumpliar con la estrategia de replicacion.
 		- Si removenode falla ejecutar $ nodetool assassinate <ip>.
 		- Assessinate es la ultima opcion para eliminar un nodo y se salta el proceso de re-replicar la data.
