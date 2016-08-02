@@ -1,0 +1,86 @@
+Clase 3
+01/08/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+	
+Using the cassandra stress Tool
+	
+	- Cassandra stress tool es una herramienta, desarrolada en java, que nos permite, comparaciones basicas de estres en un Cluster.
+	- Es posible indicarle un archivo de parametros, .yaml, en el cual se indican, con una sintaxis propia, como realizar las pruebas de estres.
+	- Es posible realizar pruebas estadisticas.
+	- La herramienta que se utiliza es $ cassandra-stress
+				
+Using the CQL COPY Command
+	
+	- Exporta o importa data delimitada desde apache Cassandra
+	- Usado para hacer multiples inserts
+	- La sintaxis es mucho mas facil que un insert
+	
+	Reglas:
+		- Cada fila debe de terner el mismo numero de colummnas delimitadas
+		- Los datos vacios son tomados como datos null
+		- Usado para importar bases de datos pequeñas (un par de millones o menos)
+	
+	- Importar datos
+		CQL> COPY videos FROM 'videos.csv' WITH DELIMITER=',' and HEADER=TRUE
+		
+	- Exportar datos
+		CQL> COPY videos TO 'videos.csv' WITH DELIMITER=',' and HEADER=TRUE
+	
+Stream Data with sstableloader (Cassandra bulk loader)
+
+	- Permite cargar data externa hacia el cluster
+	- Cargar SStables existentes de un cluster existente o hacia un nuevo cluster. No importa el numero de nodos, estrategia de replicacion o particionador
+	- Es posible cambiar la estrategia de replicacion o el particionador y luego cargar la data.
+	
+	Funcionamiento:
+		- Es no es una copia de SStables.
+		- El poceso consiste en procesar las filas y realizar el insert dentro del cluster destino, permitiendo el cambio de particionador o estrategia
+			de replica.
+		- Funciona aunque la tabla no este vacia
+		- Si las tablas fueron reparadas en un cluster origen en el cluster detino las tablas estan reparadas
+		- Usa Gossip para saber la topologia del cluster por lo que Debe de hacer un nodo seed en el cluster.
+		
+	Uso:
+		$ sstableloader -d <host> <hubicacion de sstables>
+		$ sstableloader -d 110.82.155.1 /var/lib/cassandra/data/killrvideo/users/
+	
+Explore your SSTables with sstabledump 
+
+	- Permite ver el contenido de un SStable en forma de texto plano
+	- El texto es formateado en json
+	- Ver la composicion interneta de los sstables
+	- Es posible ver el timestamp y tombstone (marca de borrado) de los registros
+	
+	Uso:
+		- $ sstabledump data/data/killrvideo/users-b75e90f0226811e6a172cfc782e39035/ma-1-big-Data.db
+
+Configuring the cassandra yaml File
+
+	- Es el principal archivo de confiracion de cassandra
+	- Para que los cambios sean aplicados se debe reiniciar cassandra.
+	- Ubicado en /etc/dse/cassandra/cassandra.yaml
+	
+	Parametros minimos para un cluster
+		- cluster_name
+		- listen_address
+		- listen_interface
+		
+	Division del archivo cassandra.yaml
+		- Storage options (Hites, ubicacion de datafiles o commitlogs)
+		- Communications (particionador, puertos de comunicacionS)
+		- Internal node configuration (like threads) (Numero de lecturas/escrituras permitidas concurrentemente)
+		- Security (configuracion de la autorizacion y el autenticador)
+		
+Tarea 4
+	Revisar repositorio de github :D
+		
+Repositorio GitHub
+	- https://github.com/susguzman/clasesCassandra.git
+	
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
+	- Videos Youtube https://www.youtube.com/playlist?list=PLFaVAzuG388uK9jIPnUlXQrB3YeptwGaX

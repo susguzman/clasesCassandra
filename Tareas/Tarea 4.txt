@@ -1,0 +1,24 @@
+Tarea 4
+Entrega: 04/08/2016
+
+1. Ubicar la carpeta donde cassandra guarda las tablas.
+
+2. Investigar la estructura de archivos que crea cassandra por tabla y seleccionar una tabla con la cual van a trabajar. Crear un documento describiendo dicha estructura.
+
+3. Editar o agregar unos datos de alguna tabla y luego ejecutar un flush manual y verificar que un nuevo sstable se ha escrito.
+
+4. Ejecutar un proceso de compactacion manual sobre la tabla seleccionada. Verificar que todos los sstables son combinados en uno solo.
+
+5. Dividir el nuevo sstable compactado creando sstables de 5MB de tamaño.
+
+6. Realizar lo necesario para habilitar backups incrementales y los auto_snapshot.
+
+7. Crear un snapshots sobre todo el keyspace.
+
+8. Simular perdida de datos realizando un update o delete de algunos registros en una tabla.
+
+9. Crear un segundo snapshots sobre todo el keyspace.
+
+10. Recuperar los datos perdidos utilizando uno de los snapshots. Verificar que los datos han sido restaurados.
+
+11. Eliminar el segundo snapshot.

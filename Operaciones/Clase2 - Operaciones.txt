@@ -36,7 +36,7 @@ Creating Snapshots
 		- Se guardan en la carpeta backup de cada tabla.
 		- No son borrados automaticamente.
 		- Por default estan deshabilidados. 
-				
+	
 Implementing Multiple Data Centers
 
 	- Topologia:
