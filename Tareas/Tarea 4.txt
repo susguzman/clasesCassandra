@@ -1,9 +1,15 @@
 Tarea 4
 Entrega: 04/08/2016
 
+/* Documentos */
+1. Crear un documento con los pasos para agregar un nuevo data center a un cluster y que este quede consistente.
+2. Crear un documento describiendo los archivos creados por cassandra al momento de crear una tabla.
+
+/* Ejecicio */
+
 1. Ubicar la carpeta donde cassandra guarda las tablas.
 
-2. Investigar la estructura de archivos que crea cassandra por tabla y seleccionar una tabla con la cual van a trabajar. Crear un documento describiendo dicha estructura.
+2. Investigar la estructura de archivos que crea cassandra por tabla y seleccionar una tabla con la cual van a trabajar. 
 
 3. Editar o agregar unos datos de alguna tabla y luego ejecutar un flush manual y verificar que un nuevo sstable se ha escrito.
 
