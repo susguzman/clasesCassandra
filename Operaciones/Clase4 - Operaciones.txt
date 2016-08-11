@@ -1,0 +1,85 @@
+Clase 4
+10/08/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+	
+System & Output Logs
+
+	- Los logs en cassandra utilizan SLF4J, que es una api para generar logs
+	- Los archivos que se escriben son system.log y debug.log
+	- La ubicacion de los logs es /var/log/cassandra
+	- El nivel por default de logging es info (Recomendado)
+	- Para ver los niveles de cada clase de logging $ nodetool getlogginglevels
+	
+	Formas manuales de configurar el logging 
+		- Por medio de $ nodetool setlogginlevel
+		- Configurar el archivo /etc/dse/cassandra/logback.xml (requiere reinicio de cassandra)
+		
+	GC Login
+		- Nos muestrs logs la JVM.
+		- Que pasa en el garbage collector
+
+Using the nodetool Utility
+
+	- Nos da la posiblidad de manjar los nodos de forma individual.
+	- Utiliza JMX que da herramientas para manejar y monitorear Java Aplications y servicios.
+	
+	Grupos de comandos de nodetool:
+		- Cluster
+			$ nodetool <opciones> status <keyspace> ##Nos da informacion acerca del estado del cluster
+			$ nodetool <opciones> repair ##Inicia el proceso de reparacion de ese nodo
+		- Server
+			$ nodetool <opciones> info #Nos da informacion del nodo y de la JVM
+			$ nodetool <opciones> tpstats #Provee informacion de estadisticas de uso (Lecturas, escrituras ...)
+			$ nodetool <opciones> tablehistograms -- killrvideo videos #Provee estadisticas acerca de la tablas (Latencia de Lecturas, Latencia de escrituras, ....)
+		- Backup
+			$ nodetool <opciones> snapshot #Crea un snapshot, si no se especifica el nombre se crea. Esto se crea solo en un nodo
+			$ nodetool <opciones> clearsnapshot #Remueve uno o mas snapshots
+		- Storage
+			$ nodetool <opciones> cleanup #Remueve datos no pertenecientes al nodo. Es recomendado hacerlo luego de un cambio en el rage token.
+			$ nodetool <opciones> flush #Obliga a descargar los datos de la memtable a los SStables y borra los commitlog
+		- Compaction
+			$ nodetool <opciones> compact #Fuerza a unir dos o mas SStables. Actua diferente dependiendo de la estrategis de compactacion. No hacerlo si no se esta seguro
+			$ nodetool <opciones> compactionstats #Muestra estadisticas acerca de las tareas de compactacion
+		- Network
+			$ nodetool <opciones> proxyhistograms #Provee estadisticas de red
+			$ nodetool <opciones> netstats #Provee estadisticas de red
+				
+Monitoring Your Cluster with OpsCenter
+	
+	- Es una herramienta que ayuda a manajear un DataStax Esterprise cluster
+	- Usa JMX para conectarse con los nodos.
+	- La data es guardada de OpsCenter es guardada en el cluster
+	
+	Permite:
+		- Monitoreo de servicios
+			- Ver querys lentos
+			- Recolectar metricas de rendimiento
+			- Seguimiento de querys
+			- Alertas
+		- Backup y restore
+			- Planificacion
+			- Clenup automaticos
+			- Posibilidad de mover los backups a AWS S3.
+		- Repair service
+		- Mejores practicas
+		
+	Principales capacidades
+		- Manejo y monitoreo visual
+		
+Introduction to JMX
+
+	- Es parate de JVM dando una serie de herramientas para manejar y monitorear Java Aplications, uso de recursos.
+	- Necesario para obtener las metricas de cassandra
+	- Hay muchas formas de acceder a JMX como jconsole o visualvm
+	- La clase org.apache.cassandra.metrics Contiene las clases para monitoreo
+		
+Repositorio GitHub
+	- https://github.com/susguzman/clasesCassandra.git
+	
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
+	- Videos Youtube https://www.youtube.com/playlist?list=PLFaVAzuG388uK9jIPnUlXQrB3YeptwGaX

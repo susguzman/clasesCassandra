@@ -1,0 +1,107 @@
+Clase 5
+11/08/2016
+
+Por:
+	Jesus Guzman
+	jguzman@datum.com.gt
+	
+Leveled Compaction
+
+	Conceptos:
+		- El parametro sstable_size_in_mb indica el tamaño maximo de cada SStable. El tamaño maximo se puede exceder media vez no quepa la particion.
+		- El nivel 0 tiene como tamaño de nivel el valor de sstable_size_in_mb.
+		- En realidad el tamaño de los SStables L0 depente del tamaño de la memoria la momento de hacer un memory-flush.
+		- Cuando un memory-flush ocurre el SStable generado es de L0.
+		- Cada nivel es 10 veces el tamaño del nivel anterior. Esto al sumar el tamaño de todos sus SSTables en ese nivel.
+		- En el proceso de compactacion se toman en cuenta todos los SSTables de ese nivel.
+		- Una compactacion ocurre cuando el tamaño del nivel es superado. Esta compactacion genera un nuevo SSTable en otro nivel.
+		
+	Datos:
+		- Los sstables suelen mantenerse de un tamaño uniforme.
+		- Cada particion esta exactamente en un solo archivo.
+		- Beneficio en las lecturas. Debido a que los archivos estan ordenados por particion lo que hace mas eficiente el bloom filter.
+		- Es bueno para escrituras ocacionales.
+		- Las particiones deben de ser mas o menos del mismo tamaño.
+		- No usa mucho disco ya que los registros obsoletos o actualizados son compactados rapidamente.
+		- Las compactaciones son mas frecuentes que STCS por lo que proboca mas I/O
+	
+Size Tiered Compaction
+	
+	Conceptios compactacion:
+		- Es necesario tener el 50% de espacio libre para realizar compactacion (para todo tipo).
+		- Es posible configurar el archivo de banda de la compactacion con compactacion_throughput_mb_per_sec.
+		- Una compactacion se ejecuta siempre que ocurre un flush de los memtables (manual o automatico) o cuando ocurre un repair
+		- Es posible realizar una compactacion con nodetool pero esta une todos los SStables en uno solo por lo que no es recomendado usarla.
+		- sstablesplit es una herramienta anticompactacion.
+	
+	Funcionamiento STCS:
+		- Los SStables se agrupan (tired) segun un rango (min, max) de tamaño lo que permite agrupar SStables de tamaño similar.
+		- Tamaño minimo de un grupo es igual al promedio de la suma de todos los SStables por 50% (bucket_low).
+		- Tamaño maximo de un grupo es igual al promedio de la suma de todos los SStables por 150% (bucket_high).
+		- Las compactaciones se realizan a nivel de grupo.
+		- Los grupos que tienen SStables que son mas accedidios tienen prioridad de compactacion.
+		- Es posible compactar paralelamente dependiendo del parametro concurrent_compactions en el archivo cassandra.yaml
+		- Si un SStable puede estar en dos grupos este es ubicado por medio de un random.
+		- No importa que los grupos se traslapen.
+		- El minimo de SStables por grupo son 4 (max_threshold) y el maximo son 32 (max_threshold). Son los valores por default.
+		- Size Tiered es la compactacion por default de las tablas.
+	
+Time Windowed Compaction
+
+	- El comportamiento es parecido a un particionamiento de tablas en Oracle.
+	- Construido para series de tiempo.
+	- El funcionamiento es paracido a Size Tiered Compaction pero los grupos son definidos por limites de tiempo.
+
+Configuring JVM Settings
+
+	- Java usa su propio CPU y Memoria. 
+	- La memoria es llamada Heap y es la que suele dar problemas.
+	- El archivo cassandra-env.sh contiene alguna configuracion de la maquina virtual, cassandra y JMX.
+	- jvm.options contiene configuraciones para la maquina virtual de java. No se debe de modificar a menos que sea necesario.
+	- La memoria Heap nunca debe de pasar de 8GB. Si esto ocurre el proceso de garbage collection no funciona bien.
+	- Los parametros Heap se encuetran en el archivo cassandra-env.sh con max_heap_size y heap_newsize. Estos son seteados automaticamente por lo que no deberia de modificarse.
+		- Si se tiene menos de 2GB, el tamaño del heap es 1/2 de la memoria del sistema
+		- Si se tiene menos de 2GB a 4GB, el tamaño del heap es de 1GB
+		- Si se tiene mas de 4GB, el tamaño del heap es 1/4 de la memoria del sistema pero no mas de 8GB
+	
+	Tipos de garbage collectors:
+		- CMS garbage collector. Es el usado por defautl en java, no es bueno para heaps grandes y es utilizado para cargas de trabajo grandes.
+		- G1 garbage collector. Es mejor que CMS con heaps grandes. Puede compactar on-the-go. Es posible habilitarlo en el archivo jvm.options
+
+Understanding Garbage Collection
+	
+	- Garbage Collection: Es un proceso por el cual libera memoria java y es invitable.
+	- Existe una pausa de la aplicacion cuando se realiza GC.
+	- El rendimiento de cassandra se ver perjudicado por que tan amenudo corre el GC
+	
+	Partes del GC
+		- New generation: Almacena los nuevos objetos creados.
+			- Cuando un objeto es creado se coloca en la parte de Eden.
+			- Con el pasar del tiempo y el Eden se llena ocurre un mini GC con lo que el objeto es promovido en dos areas mas de supervivenvia S0, S1.
+			- Si el objeto sobrevive al area de memoria S1 este es cambiado a Old generation
+			- ParNew es el nombre del mini GC.
+		- Old generation : Almacena los objetos que aun son necesarios. 
+			- Es la parte mas grande de Heap.
+			- Contiene los objetos que han sobrevivido a al GC de new generation.
+			- El GC de esta area es CMS collector y ocurre cuando esta el 75% lleno.
+			- Los memtables son guardados en old generation
+			- Si esta area se llena y el CMS aun no termina, la aplicacion es detenida esperado a que se termine el GC
+		- Perm generation: Almacena informacion estatica generalmente no es tocada.
+
+/********** Video 25 **********/
+Generating Heap Dumps for Troubleshooting
+
+	- Heap Dumps nos indica que esta pasando dentro de la memoria de JVM y como tu podrias diagnosticos.
+	- Permite saber que objeto esta consumiento la memoria.
+	- Cassandra automaticamente inicia con esta opcion hablidata.
+	- Por default el archivo es creado en el root del home de instalacion
+	- Es posible cambiar la ruta dentro del archivo cassandra-env.
+	- Tambien es posible generarlo en un JVM corriendo usando la utileria jmap
+	- No es facil analizar los Heap Dumps por lo que es necesario utilizar alguna herramienta como Eclipse Memory Analyzer Tool.
+		
+Repositorio GitHub
+	- https://github.com/susguzman/clasesCassandra.git
+	
+Sitios de estudio
+	- Documentacion oficial http://docs.datastax.com/en/landing_page/doc/landing_page/current.html
+	- Datastax Academy https://academy.datastax.com/courses/ds201-foundations-apache-cassandra
