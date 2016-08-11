@@ -88,7 +88,6 @@ Understanding Garbage Collection
 			- Si esta area se llena y el CMS aun no termina, la aplicacion es detenida esperado a que se termine el GC
 		- Perm generation: Almacena informacion estatica generalmente no es tocada.
 
-/********** Video 25 **********/
 Generating Heap Dumps for Troubleshooting
 
 	- Heap Dumps nos indica que esta pasando dentro de la memoria de JVM y como tu podrias diagnosticos.
